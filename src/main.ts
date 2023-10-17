@@ -9,12 +9,18 @@ document.title = gameName;
 const header = document.createElement("h1");
 const mycanvas = document.createElement("canvas");
 const clearButton = document.createElement("button");
+const undoButton = document.createElement("button");
+const redoButton = document.createElement("button");
+const EMPTY_LIST = 0;
 clearButton.innerHTML = "clear";
+undoButton.innerHTML = "undo";
+redoButton.innerHTML = "redo";
 const ctx = mycanvas.getContext("2d");
 mycanvas.width = 256;
 mycanvas.height = 256;
 const cursor = { active: false, x: 0, y: 0 };
 let lines: { x: number; y: number }[][] = [];
+let redoStack: { x: number; y: number }[][] = [];
 let currentLine: { x: number; y: number }[] = [];
 const changedDrawing: Event = new Event("drawing-changed");
 mycanvas.addEventListener("mousedown", (event) => {
@@ -57,8 +63,30 @@ mycanvas.addEventListener("mouseup", () => {
 clearButton.addEventListener("click", () => {
   ctx?.clearRect(0, 0, mycanvas.width, mycanvas.height);
   lines = [];
+  redoStack = [];
+  currentLine = [];
+});
+undoButton.addEventListener("click", () => {
+  if (lines.length > EMPTY_LIST) {
+    const pop = lines.pop();
+    if (pop != undefined) {
+      redoStack.push(pop);
+    }
+    mycanvas.dispatchEvent(changedDrawing);
+  }
+});
+redoButton.addEventListener("click", () => {
+  if (redoStack.length > EMPTY_LIST) {
+    const pop = redoStack.pop();
+    if (pop != undefined) {
+      lines.push(pop);
+    }
+    mycanvas.dispatchEvent(changedDrawing);
+  }
 });
 header.innerHTML = gameName;
 app.append(header);
 app.append(mycanvas);
 app.append(clearButton);
+app.append(undoButton);
+app.append(redoButton);

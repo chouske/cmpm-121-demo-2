@@ -19,8 +19,8 @@ const ctx = mycanvas.getContext("2d");
 mycanvas.width = 256;
 mycanvas.height = 256;
 const cursor = { active: false, x: 0, y: 0 };
-let lines: { x: number; y: number }[][] = [];
-let redoStack: { x: number; y: number }[][] = [];
+const lines: { x: number; y: number }[][] = [];
+const redoStack: { x: number; y: number }[][] = [];
 let currentLine: { x: number; y: number }[] = [];
 const changedDrawing: Event = new Event("drawing-changed");
 mycanvas.addEventListener("mousedown", (event) => {
@@ -29,6 +29,7 @@ mycanvas.addEventListener("mousedown", (event) => {
   cursor.y = event.offsetY;
   currentLine = [];
   lines.push(currentLine);
+  redoStack.splice(0, redoStack.length);
   currentLine.push({ x: cursor.x, y: cursor.y });
 });
 mycanvas.addEventListener("mousemove", (event) => {
@@ -62,9 +63,7 @@ mycanvas.addEventListener("mouseup", () => {
 });
 clearButton.addEventListener("click", () => {
   ctx?.clearRect(0, 0, mycanvas.width, mycanvas.height);
-  lines = [];
-  redoStack = [];
-  currentLine = [];
+  lines.splice(0, lines.length);
 });
 undoButton.addEventListener("click", () => {
   if (lines.length > EMPTY_LIST) {

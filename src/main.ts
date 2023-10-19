@@ -19,6 +19,33 @@ redoButton.innerHTML = "redo";
 thinButton.innerHTML = "thin";
 thickButton.innerHTML = "thick";
 let currentThickness = "thin";
+class CursorCommand {
+  x: number;
+  y: number;
+  constructor(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+  execute(ctx: CanvasRenderingContext2D) {
+    if (currentThickness == "thin") {
+      ctx.lineWidth = 2;
+    } else {
+      ctx.lineWidth = 10;
+    }
+    ctx.beginPath();
+    ctx.ellipse(
+      this.x,
+      this.y,
+      ctx.lineWidth / 2,
+      ctx.lineWidth / 2,
+      0,
+      0,
+      2 * Math.PI
+    );
+    ctx.stroke();
+  }
+}
+let currentLineCommand = null;
 class CustomLine {
   coordinates: { x: number; y: number }[] = [];
   thickness;
@@ -50,14 +77,11 @@ const ctx = mycanvas.getContext("2d")!;
 mycanvas.width = 256;
 mycanvas.height = 256;
 const cursor = { active: false, x: 0, y: 0 };
-//const lines: { x: number; y: number }[][] = [];
-//const redoStack: { x: number; y: number }[][] = [];
-//let currentLine: { x: number; y: number }[] = [];
 const lines: CustomLine[] = [];
 const redoStack: CustomLine[] = [];
 let currentLine: CustomLine = new CustomLine(currentThickness);
 const changedDrawing: Event = new Event("drawing-changed");
-
+const toolMoved: Event = new Event("tool-moved");
 mycanvas.addEventListener("mousedown", (event) => {
   cursor.active = true;
   cursor.x = event.offsetX;
@@ -70,34 +94,29 @@ mycanvas.addEventListener("mousedown", (event) => {
   currentLine.add(cursor.x, cursor.y);
 });
 mycanvas.addEventListener("mousemove", (event) => {
+  cursor.x = event.offsetX;
+  cursor.y = event.offsetY;
   if (cursor.active) {
-    cursor.x = event.offsetX;
-    cursor.y = event.offsetY;
     //currentLine.push({ x: cursor.x, y: cursor.y });
     currentLine.add(cursor.x, cursor.y);
     mycanvas.dispatchEvent(changedDrawing);
+  } else {
+    mycanvas.dispatchEvent(toolMoved);
   }
+});
+mycanvas.addEventListener("tool-moved", () => {
+  ctx.clearRect(0, 0, mycanvas.width, mycanvas.height);
+  lines.forEach((element) => {
+    element.display(ctx);
+  });
+  currentLineCommand = new CursorCommand(cursor.x, cursor.y);
+  currentLineCommand.execute(ctx);
 });
 mycanvas.addEventListener("drawing-changed", () => {
   ctx?.clearRect(0, 0, mycanvas.width, mycanvas.height);
   lines.forEach((element) => {
     element.display(ctx);
   });
-  /*ctx?.clearRect(0, 0, mycanvas.width, mycanvas.height);
-  lines.forEach((element) => {
-    //element is a currentline(array)
-    if (element.length > 1) {
-      ctx?.beginPath();
-      const { x, y } = element[0];
-      ctx?.moveTo(x, y);
-      for (const { x, y } of element) {
-        ctx?.lineTo(x, y);
-      }
-      ctx?.stroke();
-    }
-  });*/
-  //cursor.x = event.offsetX;
-  //cursor.y = event.offsetY;
 });
 mycanvas.addEventListener("mouseup", () => {
   cursor.active = false;

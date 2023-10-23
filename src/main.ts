@@ -6,6 +6,14 @@ const gameName = "Chase's amazing app";
 
 document.title = gameName;
 
+interface StickerButton {
+  emoji: string;
+}
+const stickerButtons: StickerButton[] = [
+  { emoji: "🐷" },
+  { emoji: "🎈" },
+  { emoji: "🌳" },
+];
 const header = document.createElement("h1");
 const mycanvas = document.createElement("canvas");
 const clearButton = document.createElement("button");
@@ -13,17 +21,13 @@ const undoButton = document.createElement("button");
 const redoButton = document.createElement("button");
 const thinButton = document.createElement("button");
 const thickButton = document.createElement("button");
-const sticker1 = document.createElement("button");
-const sticker2 = document.createElement("button");
-const sticker3 = document.createElement("button");
+const createButton = document.createElement("button");
 clearButton.innerHTML = "clear";
 undoButton.innerHTML = "undo";
 redoButton.innerHTML = "redo";
 thinButton.innerHTML = "thin";
 thickButton.innerHTML = "thick";
-sticker1.innerHTML = "🐷";
-sticker2.innerHTML = "🎈";
-sticker3.innerHTML = "🌳";
+createButton.innerHTML = "create a sticker";
 let currentThickness = "thin";
 class CursorCommand {
   x: number;
@@ -186,23 +190,22 @@ thinButton.addEventListener("mousedown", () => {
 thickButton.addEventListener("mousedown", () => {
   currentThickness = "thick";
 });
-sticker1.addEventListener("mousedown", (event) => {
-  cursor.x = event.offsetX;
-  cursor.y = event.offsetY;
-  currentSticker = new CustomSticker(sticker1.innerHTML, cursor.x, cursor.y);
-  mycanvas.dispatchEvent(toolMoved);
-});
-sticker2.addEventListener("mousedown", (event) => {
-  cursor.x = event.offsetX;
-  cursor.y = event.offsetY;
-  currentSticker = new CustomSticker(sticker2.innerHTML, cursor.x, cursor.y);
-  mycanvas.dispatchEvent(toolMoved);
-});
-sticker3.addEventListener("mousedown", (event) => {
-  cursor.x = event.offsetX;
-  cursor.y = event.offsetY;
-  currentSticker = new CustomSticker(sticker3.innerHTML, cursor.x, cursor.y);
-  mycanvas.dispatchEvent(toolMoved);
+createButton.addEventListener("click", () => {
+  const text = prompt("Give me an emoji to make a sticker out of")!;
+  stickerButtons.push({ emoji: text });
+  const tempSticker = document.createElement("button");
+  tempSticker.innerHTML = text;
+  tempSticker.addEventListener("mousedown", (event) => {
+    cursor.x = event.offsetX;
+    cursor.y = event.offsetY;
+    currentSticker = new CustomSticker(
+      tempSticker.innerHTML,
+      cursor.x,
+      cursor.y
+    );
+    mycanvas.dispatchEvent(toolMoved);
+  });
+  app.append(tempSticker);
 });
 header.innerHTML = gameName;
 app.append(header);
@@ -212,6 +215,19 @@ app.append(undoButton);
 app.append(redoButton);
 app.append(thinButton);
 app.append(thickButton);
-app.append(sticker1);
-app.append(sticker2);
-app.append(sticker3);
+stickerButtons.forEach((item) => {
+  const tempSticker = document.createElement("button");
+  tempSticker.innerHTML = item.emoji;
+  tempSticker.addEventListener("mousedown", (event) => {
+    cursor.x = event.offsetX;
+    cursor.y = event.offsetY;
+    currentSticker = new CustomSticker(
+      tempSticker.innerHTML,
+      cursor.x,
+      cursor.y
+    );
+    mycanvas.dispatchEvent(toolMoved);
+  });
+  app.append(tempSticker);
+});
+app.append(createButton);

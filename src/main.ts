@@ -78,11 +78,15 @@ class CustomSticker {
 }
 class CustomLine {
   coordinates: { x: number; y: number }[] = [];
+  color: string;
   thickness;
-  constructor(theThickness: string) {
+  constructor(theThickness: string, z: string) {
     this.thickness = theThickness;
+    this.color = z;
   }
   display(ctx: CanvasRenderingContext2D) {
+    const tempColor = ctx.strokeStyle;
+    ctx.strokeStyle = this.color;
     if (this.thickness == "thin") {
       ctx.lineWidth = 2;
     } else {
@@ -98,6 +102,7 @@ class CustomLine {
       }
       ctx?.stroke();
     }
+    ctx.strokeStyle = tempColor;
   }
   add(in1: number, in2: number) {
     this.coordinates.push({ x: in1, y: in2 });
@@ -111,7 +116,11 @@ const cursor = { active: false, x: 0, y: 0 };
 const lines: CustomLine[] = [];
 const redoStack: CustomLine[] = [];
 const stickerList: CustomSticker[] = [];
-let currentLine: CustomLine = new CustomLine(currentThickness);
+let currentColor = `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${
+  Math.random() * 255
+})`;
+ctx.strokeStyle = currentColor;
+let currentLine: CustomLine = new CustomLine(currentThickness, currentColor);
 let currentSticker = new CustomSticker("", 0, 0);
 const changedDrawing: Event = new Event("drawing-changed");
 const toolMoved: Event = new Event("tool-moved");
@@ -120,7 +129,7 @@ mycanvas.addEventListener("mousedown", (event) => {
   cursor.x = event.offsetX;
   cursor.y = event.offsetY;
   //currentLine = [];
-  currentLine = new CustomLine(currentThickness);
+  currentLine = new CustomLine(currentThickness, currentColor);
   lines.push(currentLine);
   redoStack.splice(0, redoStack.length);
   //currentLine.push({ x: cursor.x, y: cursor.y });
@@ -192,11 +201,23 @@ redoButton.addEventListener("click", () => {
 });
 thinButton.addEventListener("mousedown", () => {
   currentThickness = "thin";
+  currentColor = `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${
+    Math.random() * 255
+  })`;
+  ctx.strokeStyle = currentColor;
 });
 thickButton.addEventListener("mousedown", () => {
   currentThickness = "thick";
+  currentColor = `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${
+    Math.random() * 255
+  })`;
+  ctx.strokeStyle = currentColor;
 });
 createButton.addEventListener("click", () => {
+  currentColor = `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${
+    Math.random() * 255
+  })`;
+  ctx.strokeStyle = currentColor;
   const text = prompt("Give me an emoji to make a sticker out of")!;
   stickerButtons.push({ emoji: text });
   const tempSticker = document.createElement("button");
@@ -250,6 +271,10 @@ stickerButtons.forEach((item) => {
       cursor.x,
       cursor.y
     );
+    currentColor = `rgb(${Math.random() * 255}, ${Math.random() * 255}, ${
+      Math.random() * 255
+    })`;
+    ctx.strokeStyle = currentColor;
     mycanvas.dispatchEvent(toolMoved);
   });
   app.append(tempSticker);

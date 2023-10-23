@@ -10,9 +10,9 @@ interface StickerButton {
   emoji: string;
 }
 const stickerButtons: StickerButton[] = [
-  { emoji: "🐷" },
+  { emoji: "🌈" },
   { emoji: "🎈" },
-  { emoji: "🌳" },
+  { emoji: "⭐" },
 ];
 const header = document.createElement("h1");
 const mycanvas = document.createElement("canvas");
@@ -31,8 +31,8 @@ thickButton.innerHTML = "thick";
 createButton.innerHTML = "create a sticker";
 exportButton.innerHTML = "export";
 exportButton.style.position = "absolute";
-exportButton.style.right = "600px";
-exportButton.style.top = "600px";
+exportButton.style.left = "350px";
+exportButton.style.top = "575px";
 let currentThickness = "thin";
 class CursorCommand {
   x: number;
@@ -106,6 +106,7 @@ class CustomLine {
 const ctx = mycanvas.getContext("2d")!;
 mycanvas.width = 256;
 mycanvas.height = 256;
+ctx.font = "25px Georgia";
 const cursor = { active: false, x: 0, y: 0 };
 const lines: CustomLine[] = [];
 const redoStack: CustomLine[] = [];

@@ -22,12 +22,17 @@ const redoButton = document.createElement("button");
 const thinButton = document.createElement("button");
 const thickButton = document.createElement("button");
 const createButton = document.createElement("button");
+const exportButton = document.createElement("button");
 clearButton.innerHTML = "clear";
 undoButton.innerHTML = "undo";
 redoButton.innerHTML = "redo";
 thinButton.innerHTML = "thin";
 thickButton.innerHTML = "thick";
 createButton.innerHTML = "create a sticker";
+exportButton.innerHTML = "export";
+exportButton.style.position = "absolute";
+exportButton.style.right = "600px";
+exportButton.style.top = "600px";
 let currentThickness = "thin";
 class CursorCommand {
   x: number;
@@ -207,6 +212,24 @@ createButton.addEventListener("click", () => {
   });
   app.append(tempSticker);
 });
+exportButton.addEventListener("click", () => {
+  const tempCanvas = document.createElement("canvas");
+  tempCanvas.width = 1024;
+  tempCanvas.height = 1024;
+  const tempctx = tempCanvas.getContext("2d")!;
+  tempctx.scale(4, 4);
+  tempctx.clearRect(0, 0, mycanvas.width, mycanvas.height);
+  lines.forEach((element) => {
+    element.display(tempctx);
+  });
+  stickerList.forEach((element) => {
+    element.execute(tempctx);
+  });
+  const anchor = document.createElement("a");
+  anchor.href = tempCanvas.toDataURL("image/png");
+  anchor.download = "sketchpad.png";
+  anchor.click();
+});
 header.innerHTML = gameName;
 app.append(header);
 app.append(mycanvas);
@@ -231,3 +254,4 @@ stickerButtons.forEach((item) => {
   app.append(tempSticker);
 });
 app.append(createButton);
+app.append(exportButton);
